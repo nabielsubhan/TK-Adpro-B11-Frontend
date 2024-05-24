@@ -60,14 +60,14 @@ export default function Login() {
   if (isAuthenticated) return null;
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <div style={{ border: '1px solid #ddd', borderRadius: '10px', padding: '20px', width: '300px' }}>
-        <form onSubmit={handleSubmit}>
-          <h2>Login</h2>
-          {error && <p style={{ color: 'red' }}>{error}</p>}
-          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" />
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
-          <button type="submit">Login</button>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f2f2f2' }}>
+      <div style={{ borderRadius: '10px', width: '300px', background: '#fff' }}>
+        <form style={{ border: '1px solid #ddd', padding: '20px', borderRadius: '10px' }} onSubmit={handleSubmit}>
+          <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Login</h2>
+          {error && <p style={{ color: 'red', textAlign: 'center', marginBottom: '10px' }}>{error}</p>}
+          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" style={{ width: '92%', padding: '10px', marginBottom: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" style={{ width: '92%', padding: '10px', marginBottom: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+          <button type="submit" style={{ width: '100%', padding: '10px', borderRadius: '5px', border: 'none', background: '#007bff', color: '#fff', cursor: 'pointer' }}>Login</button>
         </form>
       </div>
     </div>
