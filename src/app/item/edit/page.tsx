@@ -3,8 +3,36 @@
 import { useState, useEffect } from 'react';
 import CryptoJS from 'crypto-js';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
+
+function useAuth() {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const router = useRouter();
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            router.push('/login');
+            return;
+        }
+
+        const decodedToken = jwtDecode(token);
+        const username = decodedToken.sub;
+
+        if (token && username === 'admin') {
+            setIsAuthenticated(true);
+        } else {
+            setIsAuthenticated(false);
+            router.back();
+        }
+    }, []);
+
+    return [isAuthenticated, setIsAuthenticated];
+}
 
 const Page = () => {
+    const [isAuthenticated, setIsAuthenticated] = useAuth();
+
     const decryptItemId = (itemId: string) => {
         const bytes = CryptoJS.AES.decrypt(itemId, 'secret');
         return bytes.toString(CryptoJS.enc.Utf8);
@@ -12,7 +40,7 @@ const Page = () => {
 
     const router = useRouter();
     const searchParams = useSearchParams();
-    const encryptedItemId = searchParams.get('encryptedItemId');
+    const encryptedItemId = searchParams ? searchParams.get('encryptedItemId') : null;
     const id = decryptItemId(encryptedItemId!);
 
     const [formData, setFormData] = useState({
@@ -72,6 +100,8 @@ const Page = () => {
             console.error('Error updating item:', error);
         }
     };
+
+    if (!isAuthenticated) return null;
 
     return (
         <main className="container mx-auto w-full max-w-4xl justify-between items-center">
