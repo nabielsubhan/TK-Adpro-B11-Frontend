@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import { jwtDecode } from 'jwt-decode';
 
 export default function CreateProfile() {
   const [fullName, setFullName] = useState('');
@@ -11,12 +12,27 @@ export default function CreateProfile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Lakukan validasi isian formulir di sini, jika diperlukan
-
     try {
-      const response = await fetch('http://34.87.122.103/api/profile/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const token = localStorage.getItem('token');
+      console.log('Token di local storage:', token);
+
+      if (!token) {
+        router.push('/login');
+        return;
+      }
+
+      const decodedToken = jwtDecode(token);
+      const username = decodedToken.sub;
+
+      console.log('Decoded token:', decodedToken);
+      console.log('Username yang didapatkan:', username); 
+
+      const response = await fetch(`http://34.87.122.103/api/profile/${username}`, {
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
         body: JSON.stringify({ fullName, phoneNumber, address }),
       });
 

@@ -38,7 +38,7 @@ export default function Register() {
         body: JSON.stringify({ username, password }),
       });
 
-      const responseData = await response.text(); // Read response text
+      const responseData = await response.text();
 
       if (response.ok) {
         console.log("Registration successful:", responseData);

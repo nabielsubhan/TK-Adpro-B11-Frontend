@@ -28,17 +28,15 @@ export default function Dashboard() {
         try {
           const token = localStorage.getItem('token');
           if (!token) {
-            // Tidak ada token, kembali ke halaman login
             router.push('/login');
             return;
           }
       
-          // Mendapatkan username dari token
-          const decodedToken = jwtDecode(token); // Use jwtDecode from 'jwt-decode'
+          const decodedToken = jwtDecode(token);
           const username = decodedToken.sub;
       
           console.log('Decoded token:', decodedToken);
-          console.log('Username yang didapatkan:', username); // Logging username
+          console.log('Username yang didapatkan:', username);
       
           const response = await fetch(`http://34.87.122.103/api/profile/${username}`, {
             method: 'GET',
@@ -48,7 +46,7 @@ export default function Dashboard() {
           });
           if (response.ok) {
             const data = await response.json();
-            console.log('Data profil yang didapatkan:', data); // Logging data profil
+            console.log('Data profil yang didapatkan:', data);
             setUserProfile(data);
             setProfileExists(true);
           } else {
