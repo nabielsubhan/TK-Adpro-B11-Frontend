@@ -39,7 +39,7 @@ export default function Login() {
 
     if (response.ok) {
       const data = await response.json();
-      localStorage.setItem('token', data.token);
+      localStorage.setItem('token', data.accessToken);
       setIsAuthenticated(true);
       router.push('/dashboard');
     } else {

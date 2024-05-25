@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { jwtDecode } from 'jwt-decode';
 
 function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -18,12 +19,57 @@ function useAuth() {
 
 export default function Dashboard() {
   const [isAuthenticated, setIsAuthenticated] = useAuth();
+  const [userProfile, setUserProfile] = useState(null);
+  const [profileExists, setProfileExists] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) {
+            // Tidak ada token, kembali ke halaman login
+            router.push('/login');
+            return;
+          }
+      
+          // Mendapatkan username dari token
+          const decodedToken = jwtDecode(token); // Use jwtDecode from 'jwt-decode'
+          const username = decodedToken.sub;
+      
+          console.log('Decoded token:', decodedToken);
+          console.log('Username yang didapatkan:', username); // Logging username
+      
+          const response = await fetch(`http://34.87.122.103/api/profile/${username}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (response.ok) {
+            const data = await response.json();
+            console.log('Data profil yang didapatkan:', data); // Logging data profil
+            setUserProfile(data);
+            setProfileExists(true);
+          } else {
+            setProfileExists(false);
+          }
+        } catch (error) {
+          console.error('Error fetching profile:', error);
+        }
+      };      
+
+    fetchProfile();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
     router.push('/login');
+  };
+
+  const handleCreateProfile = () => {
+    router.push('/create-profile');
   };
 
   if (!isAuthenticated) return null;
@@ -33,7 +79,17 @@ export default function Dashboard() {
       <div style={{ width: '50%', maxWidth: '600px', padding: '20px', border: '1px solid #ccc', borderRadius: '10px', background: '#fff' }}>
         <h1 style={{ textAlign: 'center', marginBottom: '20px' }}>Dashboard</h1>
         {router.query.message && <p style={{ textAlign: 'center', marginBottom: '20px', color: 'green' }}>{router.query.message}</p>}
-        <button onClick={handleLogout} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: 'none', background: '#007bff', color: '#fff', cursor: 'pointer' }}>Logout</button>
+        {profileExists && userProfile &&
+          <>
+            <p>Full Name: {userProfile.fullName}</p>
+            <p>Phone Number: {userProfile.phoneNumber}</p>
+            <p>Address: {userProfile.address}</p>
+          </>
+        }
+        {!profileExists &&
+          <button onClick={handleCreateProfile} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: 'none', background: '#007bff', color: '#fff', cursor: 'pointer' }}>Create Profile</button>
+        }
+        <button onClick={handleLogout} style={{ width: '100%', marginTop: '10px', padding: '10px', borderRadius: '5px', border: 'none', background: '#007bff', color: '#fff', cursor: 'pointer' }}>Logout</button>
       </div>
     </div>
   );
