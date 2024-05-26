@@ -51,6 +51,31 @@ const DecryptItem: React.FC<DecryptItemProps> = ({ setFormData }) => {
     return null; // This component doesn't render anything itself
 };
 
+function useAuth() {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const router = useRouter();
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            router.push('/login');
+            return;
+        }
+
+        const decodedToken = jwtDecode(token);
+        const username = decodedToken.sub;
+
+        if (token && username === 'admin') {
+            setIsAuthenticated(true);
+        } else {
+            setIsAuthenticated(false);
+            router.back();
+        }
+    }, []);
+
+    return [isAuthenticated, setIsAuthenticated];
+}
+
 const Page = () => {
     const [formData, setFormData] = useState<Item>({
         id: '',
