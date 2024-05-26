@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import CryptoJS from 'crypto-js';
 import Item from '@/app/item/interface';
@@ -32,7 +32,7 @@ function useAuth() {
     return [isAuthenticated, setIsAuthenticated];
 }
 
-const Page = () => {
+const Form: React.FC = () => {
     const decryptBoxId = (boxId: string) => {
         const bytes = CryptoJS.AES.decrypt(boxId, 'secret');
         return bytes.toString(CryptoJS.enc.Utf8);
@@ -193,6 +193,14 @@ const Page = () => {
                 </form>
             </div>
         </main>
+    );
+};
+
+const Page: React.FC = () => {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <Form />
+        </Suspense>
     );
 };
 

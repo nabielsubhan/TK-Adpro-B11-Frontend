@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import CryptoJS from 'crypto-js';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
@@ -30,7 +30,7 @@ function useAuth() {
     return [isAuthenticated, setIsAuthenticated];
 }
 
-const Page = () => {
+const Form: React.FC = () => {
     const [isAuthenticated, setIsAuthenticated] = useAuth();
 
     const decryptItemId = (itemId: string) => {
@@ -128,6 +128,14 @@ const Page = () => {
                 </form>
             </div>
         </main>
+    );
+};
+
+const Page: React.FC = () => {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <Form />
+        </Suspense>
     );
 };
 
