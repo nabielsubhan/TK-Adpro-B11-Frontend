@@ -3,7 +3,24 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import CryptoJS from 'crypto-js';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { jwtDecode } from 'jwt-decode';
+import jwtDecode from 'jwt-decode';
+
+type Item = {
+    id: string;
+    name: string;
+    price: number;
+    picture: string;
+    description: string;
+};
+
+type Box = {
+    id: string;
+    name: string;
+    description: string;
+    picture: string;
+    price: number;
+    items: Item[];
+};
 
 function useAuth() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -16,7 +33,7 @@ function useAuth() {
             return;
         }
 
-        const decodedToken = jwtDecode(token);
+        const decodedToken: { sub: string } = jwtDecode(token);
         const username = decodedToken.sub;
 
         if (token && username === 'admin') {
@@ -30,7 +47,11 @@ function useAuth() {
     return [isAuthenticated];
 }
 
-const DecryptItem = ({ setFormData }) => {
+type DecryptItemProps = {
+    setFormData: React.Dispatch<React.SetStateAction<Item>>;
+};
+
+const DecryptItem: React.FC<DecryptItemProps> = ({ setFormData }) => {
     const decryptItemId = (itemId: string) => {
         const bytes = CryptoJS.AES.decrypt(itemId, 'secret');
         return bytes.toString(CryptoJS.enc.Utf8);
@@ -65,7 +86,7 @@ const DecryptItem = ({ setFormData }) => {
 };
 
 const Page = () => {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<Item>({
         id: '',
         name: '',
         price: 0,
@@ -82,7 +103,7 @@ const Page = () => {
         }
     }, [isAuthenticated]);
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prevState => ({
             ...prevState,
@@ -90,7 +111,7 @@ const Page = () => {
         }));
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
             const response = await fetch(`http://34.124.239.11/item/edit/${formData.id}`, {
