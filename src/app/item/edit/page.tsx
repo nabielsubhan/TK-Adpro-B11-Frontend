@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import CryptoJS from 'crypto-js';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
@@ -27,28 +27,18 @@ function useAuth() {
         }
     }, []);
 
-    return [isAuthenticated, setIsAuthenticated];
+    return [isAuthenticated];
 }
 
-const Page = () => {
-    const [isAuthenticated, setIsAuthenticated] = useAuth();
-
+const DecryptItem = ({ setFormData }) => {
     const decryptItemId = (itemId: string) => {
         const bytes = CryptoJS.AES.decrypt(itemId, 'secret');
         return bytes.toString(CryptoJS.enc.Utf8);
     };
 
-    const router = useRouter();
     const searchParams = useSearchParams();
     const encryptedItemId = searchParams ? searchParams.get('encryptedItemId') : null;
-    const id = decryptItemId(encryptedItemId!);
-
-    const [formData, setFormData] = useState({
-        name: '',
-        description: '',
-        picture: '',
-        price: 0
-    });
+    const id = encryptedItemId ? decryptItemId(encryptedItemId) : null;
 
     useEffect(() => {
         const fetchItem = async () => {
@@ -71,7 +61,28 @@ const Page = () => {
         }
     }, [id]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    return null; // This component doesn't render anything itself
+};
+
+const Page = () => {
+    const [formData, setFormData] = useState({
+        id: '',
+        name: '',
+        price: 0,
+        picture: '',
+        description: ''
+    });
+
+    const [isAuthenticated] = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            router.push('/login');
+        }
+    }, [isAuthenticated]);
+
+    const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prevState => ({
             ...prevState,
@@ -79,32 +90,33 @@ const Page = () => {
         }));
     };
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`http://34.124.239.11/item/edit/${id}`, {
+            const response = await fetch(`http://34.124.239.11/item/edit/${formData.id}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(formData)
             });
+
             if (!response.ok) {
                 throw new Error('Failed to update item');
             }
 
-            if (response.ok) {
-                router.push('/item')
-            }
+            router.push('/item');
+
         } catch (error) {
             console.error('Error updating item:', error);
         }
     };
 
-    if (!isAuthenticated) return null;
-
     return (
         <main className="container mx-auto w-full max-w-4xl justify-between items-center">
+            <Suspense fallback={<div>Loading...</div>}>
+                <DecryptItem setFormData={setFormData} />
+            </Suspense>
             <form className="max-w-sm mx-auto mt-8" onSubmit={handleSubmit}>
                 <div className="mb-5">
                     <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>

@@ -1,22 +1,47 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import CryptoJS from 'crypto-js';
 import Item from '@/app/item/interface';
 import Box from '../interface';
 
-const Page = () => {
+const DecryptBox = ({ setFormData }) => {
     const decryptBoxId = (boxId: string) => {
         const bytes = CryptoJS.AES.decrypt(boxId, 'secret');
         return bytes.toString(CryptoJS.enc.Utf8);
     };
 
-    const router = useRouter();
     const searchParams = useSearchParams();
     const encryptedBoxId = searchParams ? searchParams.get('encryptedBoxId') : null;
-    const id = decryptBoxId(encryptedBoxId!);
+    const id = encryptedBoxId ? decryptBoxId(encryptedBoxId) : null;
 
+    useEffect(() => {
+        const fetchBox = async () => {
+            try {
+                const response = await fetch(`http://34.124.239.11/box/${id}`);
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch box');
+                }
+                const boxData = await response.json();
+                setFormData(boxData);
+
+            } catch (error) {
+                console.error('Error fetching box:', error);
+            }
+        };
+
+        if (id) {
+            fetchBox();
+        }
+    }, [id]);
+
+    return null; // This component doesn't render anything itself
+};
+
+const Page = () => {
+    const router = useRouter();
     const [formData, setFormData] = useState<Box>({
         id: '',
         name: '',
@@ -52,28 +77,6 @@ const Page = () => {
     }, []);
 
     useEffect(() => {
-        const fetchBox = async () => {
-            try {
-                const response = await fetch(`http://34.124.239.11/box/${id}`);
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch box');
-                }
-                const boxData = await response.json();
-                setFormData(boxData);
-
-            } catch (error) {
-                console.error('Error fetching box:', error);
-            }
-        };
-
-        if (id) {
-            fetchBox();
-        }
-    }, [id]);
-
-    useEffect(() => {
-        // Calculate total price when items change
         const selectedItemsTotalPrice = formData.items.reduce((acc, item) => {
             acc += item.price;
             return acc;
@@ -81,7 +84,7 @@ const Page = () => {
         setTotalPrice(selectedItemsTotalPrice);
     }, [formData.items]);
 
-    const handleChange = (e: any) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prevState => ({
             ...prevState,
@@ -89,17 +92,17 @@ const Page = () => {
         }));
     };
 
-    const handleItemChange = (e: any, selectedItem: Item) => {
+    const handleItemChange = (e: React.ChangeEvent<HTMLInputElement>, selectedItem: Item) => {
         const { checked } = e.target;
         if (checked) {
             setFormData(prevState => ({
                 ...prevState,
-                items: [...prevState.items, selectedItem] // Add selected item to the list
+                items: [...prevState.items, selectedItem]
             }));
         } else {
             setFormData(prevState => ({
                 ...prevState,
-                items: prevState.items.filter(item => item.id !== selectedItem.id) // Remove unselected item from the list
+                items: prevState.items.filter(item => item.id !== selectedItem.id)
             }));
         }
     };
@@ -107,7 +110,7 @@ const Page = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            const response = await fetch(`http://34.124.239.11/box/edit/${id}`, {
+            const response = await fetch(`http://34.124.239.11/box/edit/${formData.id}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -118,9 +121,7 @@ const Page = () => {
                 throw new Error('Failed to update box');
             }
 
-            if (response.ok) {
-                router.push('/box')
-            }
+            router.push('/box');
         } catch (error) {
             console.error('Error updating box:', error);
         }
@@ -132,6 +133,9 @@ const Page = () => {
 
     return (
         <main className="container mx-auto w-full max-w-4xl justify-between boxs-center">
+            <Suspense fallback={<div>Loading...</div>}>
+                <DecryptBox setFormData={setFormData} />
+            </Suspense>
             <form className="max-w-sm mx-auto mt-8" onSubmit={handleSubmit}>
                 <div className="mb-5">
                     <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
