@@ -5,8 +5,35 @@ import Box from "./interface";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import CryptoJS from "crypto-js";
+import { jwtDecode } from "jwt-decode";
+
+function useAuth() {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const router = useRouter();
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            router.push('/login');
+            return;
+        }
+
+        const decodedToken = jwtDecode(token);
+        const username = decodedToken.sub;
+
+        if (token && username === 'admin') {
+            setIsAuthenticated(true);
+        } else {
+            setIsAuthenticated(false);
+            router.back();
+        }
+    }, []);
+
+    return [isAuthenticated, setIsAuthenticated];
+}
 
 const Page: React.FC = () => {
+    const [isAuthenticated, setIsAuthenticated] = useAuth();
     const router = useRouter();
     const [boxes, setBoxes] = useState<Box[]>([]);
 
@@ -120,14 +147,20 @@ const Page: React.FC = () => {
         return `Rp${harga.toLocaleString("id-ID")}`;
     };
 
+    if (!isAuthenticated) return null;
+
     return (
         <main className="container mx-auto w-full max-w-4xl justify-between items-center">
-            <div className="flex justify-center mt-8">
+            <p className="flex justify-center">Klik button berikut ini untuk buat Box baru:</p>
+            <div className="flex justify-center mt-2">
                 <button className="bg-black text-white px-6 py-2 rounded-full hover:shadow-md">
                     <Link href="/box/create">Create Box</Link>
                 </button>
             </div>
-            <div className="my-8">{boxList()}</div>
+            <div className="bg-neutral-200 p-8 rounded-lg mt-8 pt-4">
+                <p className="flex justify-center font-bold pb-4 text-lg">List Box</p>
+                <div>{boxList()}</div>
+            </div>
         </main>
     );
 };

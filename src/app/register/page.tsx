@@ -1,5 +1,7 @@
+'use client'
+
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -9,7 +11,7 @@ function useAuth() {
     const token = localStorage.getItem('token');
     setIsAuthenticated(!!token);
     if (token) {
-      router.push('/dashboard');
+      router.push('/');
     }
   }, []);
 
@@ -23,7 +25,7 @@ export default function Register() {
   const [isAuthenticated, setIsAuthenticated] = useAuth();
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!username || !password) {
@@ -42,7 +44,7 @@ export default function Register() {
 
       if (response.ok) {
         console.log("Registration successful:", responseData);
-        window.location.href = '/login';
+        router.push('/login');
       } else {
         console.log("Registration failed:", responseData);
         setError(responseData || 'An error occurred');
@@ -76,13 +78,16 @@ export default function Register() {
             style={styles.input}
           />
           <button type="submit" style={styles.button}>Register</button>
+          <p style={{ textAlign: 'center', marginTop: '10px' }}>
+            Already have an account? <a href="/login" style={{ color: 'blue' }}>Login</a>
+          </p>
         </form>
       </div>
     </div>
   );
 }
 
-const styles = {
+const styles: { [key: string]: React.CSSProperties } = {
   container: {
     display: 'flex',
     justifyContent: 'center',
