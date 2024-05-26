@@ -4,8 +4,35 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Item from '@/app/item/interface';
 import Box from '../interface';
+import { jwtDecode } from 'jwt-decode';
+
+function useAuth() {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const router = useRouter();
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            router.push('/login');
+            return;
+        }
+
+        const decodedToken = jwtDecode(token);
+        const username = decodedToken.sub;
+
+        if (token && username === 'admin') {
+            setIsAuthenticated(true);
+        } else {
+            setIsAuthenticated(false);
+            router.back();
+        }
+    }, []);
+
+    return [isAuthenticated, setIsAuthenticated];
+}
 
 const Page = () => {
+    const [isAuthenticated, setIsAuthenticated] = useAuth();
     const router = useRouter();
     const [formData, setFormData] = useState<Box>({
         id: '',
@@ -98,6 +125,8 @@ const Page = () => {
     const formatRupiah = (harga: number) => {
         return `Rp${harga.toLocaleString('id-ID')}`;
     };
+
+    if (!isAuthenticated) return null;
 
     return (
         <main className="container mx-auto w-full max-w-4xl justify-between boxs-center">

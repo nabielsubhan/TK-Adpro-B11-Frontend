@@ -5,6 +5,32 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import CryptoJS from 'crypto-js';
 import Item from '@/app/item/interface';
 import Box from '../interface';
+import { jwtDecode } from 'jwt-decode';
+
+function useAuth() {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const router = useRouter();
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            router.push('/login');
+            return;
+        }
+
+        const decodedToken = jwtDecode(token);
+        const username = decodedToken.sub;
+
+        if (token && username === 'admin') {
+            setIsAuthenticated(true);
+        } else {
+            setIsAuthenticated(false);
+            router.back();
+        }
+    }, []);
+
+    return [isAuthenticated, setIsAuthenticated];
+}
 
 const Page = () => {
     const decryptBoxId = (boxId: string) => {
@@ -12,9 +38,10 @@ const Page = () => {
         return bytes.toString(CryptoJS.enc.Utf8);
     };
 
+    const [isAuthenticated, setIsAuthenticated] = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const encryptedBoxId = searchParams.get('encryptedBoxId');
+    const encryptedBoxId = searchParams ? searchParams.get('encryptedBoxId') : null;
     const id = decryptBoxId(encryptedBoxId!);
 
     const [formData, setFormData] = useState<Box>({
@@ -129,6 +156,8 @@ const Page = () => {
     const formatRupiah = (harga: number) => {
         return `Rp${harga.toLocaleString('id-ID')}`;
     };
+
+    if (!isAuthenticated) return null;
 
     return (
         <main className="container mx-auto w-full max-w-4xl justify-between boxs-center">
