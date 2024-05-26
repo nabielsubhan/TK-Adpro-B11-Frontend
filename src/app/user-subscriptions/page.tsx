@@ -1,9 +1,9 @@
-'use client'
+'use client';
 
 import React, { useEffect, useState, ChangeEvent } from 'react';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import { jwtDecode } from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode'; // Ensure correct import
 
 interface Subscription {
     subscriptionId: string;
@@ -18,10 +18,6 @@ interface Subscription {
     boxId: string;
 }
 
-interface SubscriptionsProps {
-    subscriptions: Subscription[];
-}
-
 function useAuth() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [username, setUsername] = useState('');
@@ -34,7 +30,7 @@ function useAuth() {
             return;
         }
 
-        const decodedToken = jwtDecode(token);
+        const decodedToken: any = jwtDecode(token); // Add type assertion for `any`
         const username = decodedToken.sub || ''; // Ensure username is defined
 
         if (token) {
@@ -46,12 +42,12 @@ function useAuth() {
         }
     }, []);
 
-    return [isAuthenticated, setIsAuthenticated, username];
+    return [isAuthenticated, username] as const; // Use `as const` for tuple return type
 }
 
-const SubscriptionsPage: React.FC<SubscriptionsProps> = ({ subscriptions: initialSubscriptions }) => {
-    const [isAuthenticated, setIsAuthenticated, username] = useAuth();
-    const [subscriptions, setSubscriptions] = useState<Subscription[]>(initialSubscriptions || []);
+const SubscriptionsPage: React.FC = () => {
+    const [isAuthenticated, username] = useAuth();
+    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [reload, setReload] = useState<boolean>(true);
     const [filter, setFilter] = useState<string>('');
 
@@ -92,10 +88,9 @@ const SubscriptionsPage: React.FC<SubscriptionsProps> = ({ subscriptions: initia
         }
     };
 
-    // Ensure subscriptions is defined before filtering
-    const filteredSubscriptions = subscriptions?.filter(subscription => {
+    const filteredSubscriptions = subscriptions.filter(subscription => {
         return subscription.customerId === username && (filter === '' || subscription.subscriptionStatus === filter);
-    }) || [];
+    });
 
     const subscriptionStatuses = ['PENDING', 'SUBSCRIBED', 'CANCELLED'];
 
@@ -122,40 +117,40 @@ const SubscriptionsPage: React.FC<SubscriptionsProps> = ({ subscriptions: initia
                     <option key={status} value={status}>{status}</option>
                 ))}
             </select>
-            
+
             {filteredSubscriptions.length === 0 ? (
-            <h3 style={{ textAlign: 'center' }} >Belum ada Subscription</h3>
-             ) : (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', padding: '16px' }}>
-                {filteredSubscriptions.map((subscription) => (
-                    <div key={subscription.subscriptionId} style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '16px', width: '300px' }}>
-                        <h3>Subscription Code: {subscription.subscriptionCode}</h3>
-                        <p><strong>ID:</strong> {subscription.subscriptionId}</p>
-                        <p><strong>Created Date:</strong> {format(new Date(subscription.createdDate), 'dd-MM-yyyy HH:mm:ss')}</p>
-                        <p><strong>Approval Status:</strong> {subscription.approvalStatus}</p>
-                        <p><strong>Subscription Status:</strong> {subscription.subscriptionStatus}</p>
-                        <p><strong>Type:</strong> {subscription.subscriptionType}</p>
-                        <p><strong>Start Date:</strong> {subscription.startDate ? format(new Date(subscription.startDate), 'dd-MM-yyyy HH:mm:ss') : 'N/A'}</p>
-                        <p><strong>End Date:</strong> {subscription.endDate ? format(new Date(subscription.endDate), 'dd-MM-yyyy HH:mm:ss') : 'N/A'}</p>
-                        <div>
-                            <button
-                                style={{
-                                    padding: '8px 16px',
-                                    backgroundColor: subscription.subscriptionStatus === 'CANCELLED' ? 'grey' : 'red',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer'
-                                }}
-                                onClick={() => handleCancel(subscription.subscriptionId)}
-                            >
-                                Cancel
-                            </button>
+                <h3 style={{ textAlign: 'center' }}>Belum ada Subscription</h3>
+            ) : (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', padding: '16px' }}>
+                    {filteredSubscriptions.map((subscription) => (
+                        <div key={subscription.subscriptionId} style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '16px', width: '300px' }}>
+                            <h3>Subscription Code: {subscription.subscriptionCode}</h3>
+                            <p><strong>ID:</strong> {subscription.subscriptionId}</p>
+                            <p><strong>Created Date:</strong> {format(new Date(subscription.createdDate), 'dd-MM-yyyy HH:mm:ss')}</p>
+                            <p><strong>Approval Status:</strong> {subscription.approvalStatus}</p>
+                            <p><strong>Subscription Status:</strong> {subscription.subscriptionStatus}</p>
+                            <p><strong>Type:</strong> {subscription.subscriptionType}</p>
+                            <p><strong>Start Date:</strong> {subscription.startDate ? format(new Date(subscription.startDate), 'dd-MM-yyyy HH:mm:ss') : 'N/A'}</p>
+                            <p><strong>End Date:</strong> {subscription.endDate ? format(new Date(subscription.endDate), 'dd-MM-yyyy HH:mm:ss') : 'N/A'}</p>
+                            <div>
+                                <button
+                                    style={{
+                                        padding: '8px 16px',
+                                        backgroundColor: subscription.subscriptionStatus === 'CANCELLED' ? 'grey' : 'red',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer'
+                                    }}
+                                    onClick={() => handleCancel(subscription.subscriptionId)}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
-            </div>
-             )}
+                    ))}
+                </div>
+            )}
         </div>
     );
 };
