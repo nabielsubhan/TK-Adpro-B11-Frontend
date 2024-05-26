@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import CryptoJS from 'crypto-js';
 import { useRouter, useSearchParams } from 'next/navigation';
-import jwtDecode from 'jwt-decode';
+import jwt_decode from 'jwt-decode';
 
 type Item = {
     id: string;
@@ -62,7 +62,7 @@ function useAuth() {
             return;
         }
 
-        const decodedToken = jwtDecode(token);
+        const decodedToken = jwt_decode(token);
         const username = decodedToken.sub;
 
         if (token && username === 'admin') {
