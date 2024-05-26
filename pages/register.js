@@ -11,7 +11,7 @@ function useAuth() {
     if (token) {
       router.push('/dashboard');
     }
-  }, [router]);
+  }, []);
 
   return [isAuthenticated, setIsAuthenticated];
 }

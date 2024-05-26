@@ -12,7 +12,7 @@ function useAuth() {
     if (!token) {
       router.push('/login');
     }
-  }, [router]);
+  }, []);
 
   return [isAuthenticated, setIsAuthenticated];
 }
@@ -58,7 +58,7 @@ export default function Dashboard() {
       };      
 
     fetchProfile();
-  }, [router]);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
