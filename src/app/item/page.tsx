@@ -122,14 +122,18 @@ const Page: React.FC = () => {
 
     return (
         <main className="container mx-auto w-full max-w-4xl justify-between items-center">
-            <div className="flex justify-center mt-8">
+            <p className="flex justify-center">Klik button berikut ini untuk buat Item baru:</p>
+            <div className="flex justify-center mt-2">
                 <button className="bg-black text-white px-6 py-2 rounded-full hover:shadow-md">
                     <Link href="/item/create">
                         Create Item
                     </Link>
                 </button>
             </div>
-            <div className="my-8">{itemList()}</div>
+            <div className="bg-neutral-200 p-8 rounded-lg mt-8 pt-4">
+                <p className="flex justify-center font-bold pb-4 text-lg">List Item</p>
+                <div>{itemList()}</div>
+            </div>
         </main>
     )
 };
