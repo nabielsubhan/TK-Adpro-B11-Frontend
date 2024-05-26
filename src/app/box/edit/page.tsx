@@ -6,7 +6,11 @@ import CryptoJS from 'crypto-js';
 import Item from '@/app/item/interface';
 import Box from '../interface';
 
-const DecryptBox = ({ setFormData }) => {
+type DecryptBoxProps = {
+    setFormData: React.Dispatch<React.SetStateAction<Box>>;
+};
+
+const DecryptBox: React.FC<DecryptBoxProps> = ({ setFormData }) => {
     const decryptBoxId = (boxId: string) => {
         const bytes = CryptoJS.AES.decrypt(boxId, 'secret');
         return bytes.toString(CryptoJS.enc.Utf8);
