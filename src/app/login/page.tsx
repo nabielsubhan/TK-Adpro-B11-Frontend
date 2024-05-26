@@ -78,7 +78,7 @@ const LoginPage: React.FC = () => {
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" style={{ width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
           <button type="submit" style={{ width: '100%', padding: '10px', borderRadius: '5px', border: 'none', background: '#007bff', color: '#fff', cursor: 'pointer' }}>Login</button>
           <p style={{ textAlign: 'center', marginTop: '10px' }}>
-            Don't have an account yet? <a href="/register" style={{ color: 'blue' }}>Register</a>
+            Don&apos;t have an account yet? <a href="/register" style={{ color: 'blue' }}>Register</a>
           </p>
         </form>
       </div>

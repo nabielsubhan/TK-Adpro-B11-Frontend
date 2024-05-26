@@ -26,7 +26,7 @@ function useAuth() {
     return [isAuthenticated, setIsAuthenticated];
 }
 
-function checkAdmin() {
+function useCheckAdmin() {
     const [isAdmin, setIsAdmin] = useState(false);
     const router = useRouter();
 
@@ -52,7 +52,7 @@ function checkAdmin() {
 
 const Header: React.FC = () => {
     const [isAuthenticated, setIsAuthenticated] = useAuth();
-    const [isAdmin, setIsAdmin] = checkAdmin();
+    const [isAdmin] = useCheckAdmin();
     const router = useRouter();
 
     const handleLogout = () => {
