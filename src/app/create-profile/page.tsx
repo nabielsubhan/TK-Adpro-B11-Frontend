@@ -1,5 +1,7 @@
+'use client'
+
 import { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
 
 export default function CreateProfile() {
@@ -9,7 +11,7 @@ export default function CreateProfile() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
@@ -25,10 +27,10 @@ export default function CreateProfile() {
       const username = decodedToken.sub;
 
       console.log('Decoded token:', decodedToken);
-      console.log('Username yang didapatkan:', username); 
+      console.log('Username yang didapatkan:', username);
 
       const response = await fetch(`http://34.87.122.103/api/profile/${username}`, {
-        method: 'POST', 
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
@@ -54,10 +56,13 @@ export default function CreateProfile() {
         <form style={{ border: '1px solid #ddd', padding: '20px', borderRadius: '10px' }} onSubmit={handleSubmit}>
           <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Create Profile</h2>
           {error && <p style={{ color: 'red', textAlign: 'center', marginBottom: '10px' }}>{error}</p>}
-          <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Full Name" style={{ width: '92%', padding: '10px', marginBottom: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
-          <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="Phone Number" style={{ width: '92%', padding: '10px', marginBottom: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
-          <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Address" style={{ width: '92%', padding: '10px', marginBottom: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+          <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Full Name" style={{ width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+          <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="Phone Number" style={{ width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+          <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Address" style={{ width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
           <button type="submit" style={{ width: '100%', padding: '10px', borderRadius: '5px', border: 'none', background: '#007bff', color: '#fff', cursor: 'pointer' }}>Create</button>
+          <p style={{ textAlign: 'center', marginTop: '10px' }}>
+            Back to <a href="/dashboard" style={{ color: 'blue' }}>profile</a>
+          </p>
         </form>
       </div>
     </div>
