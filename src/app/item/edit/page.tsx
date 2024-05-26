@@ -13,40 +13,6 @@ type Item = {
     description: string;
 };
 
-type Box = {
-    id: string;
-    name: string;
-    description: string;
-    picture: string;
-    price: number;
-    items: Item[];
-};
-
-function useAuth() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const router = useRouter();
-
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            router.push('/login');
-            return;
-        }
-
-        const decodedToken: { sub: string } = jwtDecode(token);
-        const username = decodedToken.sub;
-
-        if (token && username === 'admin') {
-            setIsAuthenticated(true);
-        } else {
-            setIsAuthenticated(false);
-            router.back();
-        }
-    }, []);
-
-    return [isAuthenticated];
-}
-
 type DecryptItemProps = {
     setFormData: React.Dispatch<React.SetStateAction<Item>>;
 };
