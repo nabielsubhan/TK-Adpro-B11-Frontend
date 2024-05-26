@@ -3,7 +3,53 @@
 import { useState, useEffect, Suspense } from 'react';
 import CryptoJS from 'crypto-js';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode } from "jwt-decode";
+
+type Item = {
+    id: string;
+    name: string;
+    price: number;
+    picture: string;
+    description: string;
+};
+
+type DecryptItemProps = {
+    setFormData: React.Dispatch<React.SetStateAction<Item>>;
+};
+
+const DecryptItem: React.FC<DecryptItemProps> = ({ setFormData }) => {
+    const decryptItemId = (itemId: string) => {
+        const bytes = CryptoJS.AES.decrypt(itemId, 'secret');
+        return bytes.toString(CryptoJS.enc.Utf8);
+    };
+
+    const searchParams = useSearchParams();
+    const encryptedItemId = searchParams ? searchParams.get('encryptedItemId') : null;
+    const id = encryptedItemId ? decryptItemId(encryptedItemId) : null;
+
+    useEffect(() => {
+        const fetchItem = async () => {
+            try {
+                const response = await fetch(`http://34.124.239.11/item/${id}`);
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch item');
+                }
+                const itemData = await response.json();
+                setFormData(itemData);
+
+            } catch (error) {
+                console.error('Error fetching item:', error);
+            }
+        };
+
+        if (id) {
+            fetchItem();
+        }
+    }, [id]);
+
+    return null; // This component doesn't render anything itself
+};
 
 function useAuth() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -45,31 +91,19 @@ const Form: React.FC = () => {
 
     const [formData, setFormData] = useState({
         name: '',
-        description: '',
+        price: 0,
         picture: '',
-        price: 0
+        description: ''
     });
 
+    const [isAuthenticated] = useAuth();
+    const router = useRouter();
+
     useEffect(() => {
-        const fetchItem = async () => {
-            try {
-                const response = await fetch(`http://34.124.239.11/item/${id}`);
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch item');
-                }
-                const itemData = await response.json();
-                setFormData(itemData);
-
-            } catch (error) {
-                console.error('Error fetching item:', error);
-            }
-        };
-
-        if (id) {
-            fetchItem();
+        if (!isAuthenticated) {
+            router.push('/login');
         }
-    }, [id]);
+    }, [isAuthenticated]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -82,26 +116,24 @@ const Form: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            const response = await fetch(`http://34.124.239.11/item/edit/${id}`, {
+            const response = await fetch(`http://34.124.239.11/item/edit/${formData.id}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(formData)
             });
+
             if (!response.ok) {
                 throw new Error('Failed to update item');
             }
 
-            if (response.ok) {
-                router.push('/item')
-            }
+            router.push('/item');
+
         } catch (error) {
             console.error('Error updating item:', error);
         }
     };
-
-    if (!isAuthenticated) return null;
 
     return (
         <main className="container mx-auto w-full max-w-md justify-between items-center">

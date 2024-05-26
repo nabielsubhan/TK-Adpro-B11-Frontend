@@ -79,28 +79,6 @@ const Form: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        const fetchBox = async () => {
-            try {
-                const response = await fetch(`http://34.124.239.11/box/${id}`);
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch box');
-                }
-                const boxData = await response.json();
-                setFormData(boxData);
-
-            } catch (error) {
-                console.error('Error fetching box:', error);
-            }
-        };
-
-        if (id) {
-            fetchBox();
-        }
-    }, [id]);
-
-    useEffect(() => {
-        // Calculate total price when items change
         const selectedItemsTotalPrice = formData.items.reduce((acc, item) => {
             acc += item.price;
             return acc;
@@ -108,7 +86,7 @@ const Form: React.FC = () => {
         setTotalPrice(selectedItemsTotalPrice);
     }, [formData.items]);
 
-    const handleChange = (e: any) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prevState => ({
             ...prevState,
@@ -116,17 +94,17 @@ const Form: React.FC = () => {
         }));
     };
 
-    const handleItemChange = (e: any, selectedItem: Item) => {
+    const handleItemChange = (e: React.ChangeEvent<HTMLInputElement>, selectedItem: Item) => {
         const { checked } = e.target;
         if (checked) {
             setFormData(prevState => ({
                 ...prevState,
-                items: [...prevState.items, selectedItem] // Add selected item to the list
+                items: [...prevState.items, selectedItem]
             }));
         } else {
             setFormData(prevState => ({
                 ...prevState,
-                items: prevState.items.filter(item => item.id !== selectedItem.id) // Remove unselected item from the list
+                items: prevState.items.filter(item => item.id !== selectedItem.id)
             }));
         }
     };
@@ -134,7 +112,7 @@ const Form: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            const response = await fetch(`http://34.124.239.11/box/edit/${id}`, {
+            const response = await fetch(`http://34.124.239.11/box/edit/${formData.id}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -145,9 +123,7 @@ const Form: React.FC = () => {
                 throw new Error('Failed to update box');
             }
 
-            if (response.ok) {
-                router.push('/box')
-            }
+            router.push('/box');
         } catch (error) {
             console.error('Error updating box:', error);
         }
