@@ -14,7 +14,7 @@ const Page = () => {
 
     const router = useRouter();
     const searchParams = useSearchParams();
-    const encryptedBoxId = searchParams.get('encryptedBoxId');
+    const encryptedBoxId = searchParams ? searchParams.get('encryptedBoxId') : null;
     const id = decryptBoxId(encryptedBoxId!);
 
     const [formData, setFormData] = useState<Box>({

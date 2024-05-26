@@ -1,16 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Item from '@/app/item/interface';
 import Box from '../interface';
 
 const Page = () => {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const encryptedBoxId = searchParams ? searchParams.get('encryptedBoxId') : null;
-    const id = encryptedBoxId ? decryptBoxId(encryptedBoxId) : null;
-
     const [formData, setFormData] = useState<Box>({
         id: '',
         name: '',
@@ -46,6 +42,7 @@ const Page = () => {
     }, []);
 
     useEffect(() => {
+        // Calculate total price when items change
         const selectedItemsTotalPrice = formData.items.reduce((acc, item) => {
             acc += item.price;
             return acc;
@@ -66,12 +63,12 @@ const Page = () => {
         if (checked) {
             setFormData(prevState => ({
                 ...prevState,
-                items: [...prevState.items, selectedItem]
+                items: [...prevState.items, selectedItem] // Add selected item to the list
             }));
         } else {
             setFormData(prevState => ({
                 ...prevState,
-                items: prevState.items.filter(item => item.id !== selectedItem.id)
+                items: prevState.items.filter(item => item.id !== selectedItem.id) // Remove unselected item from the list
             }));
         }
     };
@@ -86,11 +83,13 @@ const Page = () => {
                 },
                 body: JSON.stringify(formData)
             });
+            console.log(JSON.stringify(formData));
             if (!response.ok) {
                 throw new Error('Failed to create box');
             }
 
             router.push('/box');
+
         } catch (error) {
             console.error('Error creating box:', error);
         }
