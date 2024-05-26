@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
 
 function useAuth(): [boolean, Dispatch<SetStateAction<boolean>>] {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -11,7 +12,7 @@ function useAuth(): [boolean, Dispatch<SetStateAction<boolean>>] {
     const token = localStorage.getItem('token');
     setIsAuthenticated(!!token);
     if (token) {
-      router.push('/dashboard');
+      router.push('/');
     }
   }, []);
 
@@ -43,7 +44,13 @@ const LoginPage: React.FC = () => {
       const data = await response.json();
       localStorage.setItem('token', data.accessToken);
       setIsAuthenticated(true);
-      router.push('/dashboard');
+      const decodedToken: any = jwtDecode(data.accessToken);
+      if (decodedToken.sub === 'admin'){
+        router.replace('/landing-admin');
+      } else {
+        router.replace('/landing-user');
+      }
+
     } else {
       if (response.status === 401) {
         setError('Username atau password salah');

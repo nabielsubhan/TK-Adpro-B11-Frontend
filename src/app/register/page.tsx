@@ -11,7 +11,7 @@ function useAuth() {
     const token = localStorage.getItem('token');
     setIsAuthenticated(!!token);
     if (token) {
-      router.push('/dashboard');
+      router.push('/');
     }
   }, []);
 
