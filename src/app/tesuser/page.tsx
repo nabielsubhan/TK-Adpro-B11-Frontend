@@ -1,12 +1,13 @@
+// kalo pagenya cuman bisa diakses sama user doang coba tambah line 9-34 tapi kalo bisa dua duanya liat dashboard deh
 
-// tambahin importan sama line 9-34 ya di page yang cuman buat user, kalo bisa dua duanya bisa cek kode di dashboard
-
+'use client'
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
 
 export default function TesUser() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isUser, setIsUser] = useState(false); 
   const router = useRouter();
 
   useEffect(() => {
@@ -15,7 +16,7 @@ export default function TesUser() {
       const decodedToken = jwtDecode(token);
       if (decodedToken) {
         setIsAuthenticated(true);
-        if (decodedToken.sub !== 'admin') { // Assuming the token has a 'role' field
+        if (decodedToken.sub !== 'admin') { 
             setIsUser(true);
         } else {
             router.push('/unauthorized');
@@ -28,7 +29,7 @@ export default function TesUser() {
     }
   }, []);
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !isUser) {
     return null;
   }
 

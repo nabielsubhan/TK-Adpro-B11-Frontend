@@ -1,8 +1,8 @@
+// kalo buat page yang cmn bisa diakses sm admin tambahin import sama line 9-34 aja kalo bisa dua duanya liat dashboard dah
 
-// tambahin importan sama line 9-34 ya di page yang cuman buat admin
-
+'use client'
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
 
 export default function TesAdmin() {
@@ -19,7 +19,7 @@ export default function TesAdmin() {
         if (decodedToken.sub === 'admin') { 
           setIsAdmin(true);
         } else {
-          router.push('/unauthorized'); // Redirect to unauthorized page
+          router.push('/unauthorized'); 
         }
       } else {
         router.push('/login'); 
