@@ -69,7 +69,7 @@ const Header: React.FC = () => {
                 <Link href="/item/" className="hover:underline">Item</Link>
                 <Link href="/box/" className="hover:underline">Subscription Box</Link>
                 <Link href="/dashboard/" className="hover:underline">Profile</Link>
-                {/* <Link href="/subscription/" className="hover:underline">Subscription</Link> */}
+                <Link href="/subscriptions/" className="hover:underline">Subscriptions</Link>
                 <button onClick={handleLogout} className="font-bold bg-black text-white px-6 py-2 rounded-full hover:shadow-md">
                     Logout
                 </button>
@@ -80,6 +80,7 @@ const Header: React.FC = () => {
     const renderUserLinks = () => {
         return (
             <div className="flex gap-8 items-center">
+                <Link href="/user-subscriptions/" className="hover:underline">My Subscriptions</Link>
                 <Link href="/dashboard/" className="hover:underline">Profile</Link>
                 <button onClick={handleLogout} className="font-bold bg-black text-white px-6 py-2 rounded-full hover:shadow-md">
                     Logout
