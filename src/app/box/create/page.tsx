@@ -39,7 +39,7 @@ const Page = () => {
         };
 
         fetchItems();
-    }, []);
+    }, [router]);
 
     useEffect(() => {
         // Calculate total price when items change
@@ -48,7 +48,7 @@ const Page = () => {
             return acc;
         }, 0);
         setTotalPrice(selectedItemsTotalPrice);
-    }, [formData.items]);
+    }, [formData.items, router]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
